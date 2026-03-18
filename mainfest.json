@@ -1,0 +1,17 @@
+{
+  "name": "돌망이 타이쿤: 인피니티",
+  "short_name": "돌망이",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#00f3ff",
+  "description": "우주 최강의 돌멩이를 키우는 방치형 타이쿤 게임",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

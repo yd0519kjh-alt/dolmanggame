@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>돌망이 타이쿤: 인피니티 - 전설의 반려석 키우기 게임</title>
+    <meta name="description" content="세상에서 가장 귀여운 반려석 '돌망이'를 100단계까지 진화시키세요! 100개의 유니크한 스킨과 업적이 기다리는 중독성 강한 방치형 타이쿤 게임.">
+    <meta name="keywords" content="돌망이, 돌키우기, 타이쿤게임, 방치형게임, 반려석, PWA게임, 돌망이타이쿤, 중독성게임">
+    <meta name="author" content="Dolmang Master">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="돌망이 타이쿤: 인피니티">
+    <meta property="og:description" content="나만의 돌망이를 우주의 신으로 진화시키세요!">
+    <meta property="og:image" content="icon.png">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f3ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <script>
+        // PWA 서비스 워커 등록
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
+
+    <style>
+        :root { --neon-blue: #00f3ff; --neon-pink: #ff00ff; --gold: #ffd700; --bg: #0a0a0c; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body { background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Pretendard', -apple-system, sans-serif; margin: 0; padding: 15px; }
+        
+        /* 검색 로봇을 위한 숨겨진 제목 */
+        .seo-h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+        .game-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; width: 100%; max-width: 900px; }
+        
+        .card { background: #151518; padding: 25px; border-radius: 25px; border: 1px solid #222; box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative; display: flex; flex-direction: column; }
+        h3 { margin-top: 0; color: var(--neon-blue); font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 12px; display: flex; justify-content: space-between; }
+
+        /* 메인 스테이지 */
+        .main-stage { text-align: center; padding: 40px 0; background: radial-gradient(circle, #1a1a2e 0%, #0a0a0c 70%); border-radius: 20px; margin-bottom: 20px; position: relative; }
+        #dolmang { font-size: 110px; cursor: pointer; transition: 0.1s; user-select: none; display: inline-block; filter: drop-shadow(0 0 10px rgba(0,243,255,0.3)); }
+        #dolmang:active { transform: scale(0.85); }
+
+        /* 게이지 */
+        .bar-container { margin: 12px 0; }
+        .label { font-size: 11px; color: #888; display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .bar-bg { background: #222; height: 8px; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; transition: width 0.2s; background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
+
+        /* 리스트 메뉴 */
+        .scroll-list { height: 380px; overflow-y: auto; padding-right: 8px; }
+        .scroll-list::-webkit-scrollbar { width: 4px; }
+        .scroll-list::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+        .list-item { background: #1e1e22; padding: 14px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: 0.2s; }
+        .list-item:hover { background: #25252b; }
+        .list-item.owned { border-color: var(--neon-pink); background: #251a25; }
+        .list-item.achieved { border-left: 5px solid var(--neon-pink); background: #2d1a2d; }
+        
+        button { background: var(--neon-blue); color: black; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+        button:active { transform: scale(0.95); }
+
+        /* 탭 버튼 */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { background: #222; color: #666; flex: 1; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .tab-btn.active { background: var(--neon-blue); color: black; box-shadow: 0 0 15px rgba(0,243,255,0.4); }
+
+        /* 하단 메시지 */
+        #msg { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); color: var(--neon-pink); font-size: 13px; font-weight: bold; background: rgba(10,10,12,0.9); padding: 12px 25px; border-radius: 30px; pointer-events: none; opacity: 0; transition: 0.3s; z-index: 1000; border: 1px solid var(--neon-pink); text-align: center; box-shadow: 0 0 20px rgba(255,0,255,0.2); }
+    </style>
+</head>
+<body>
+
+<h1 class="seo-h1">돌망이 타이쿤: 인피니티 - 나만의 반려석 키우기</h1>
+
+<div class="game-layout">
+    <div class="card">
+        <div style="font-size: 28px; color: var(--gold); font-weight: 900; margin-bottom: 5px; letter-spacing: -1px;">💰 <span id="coins">0</span></div>
+        <div id="level-info" style="color: var(--neon-blue); font-size: 15px; margin-bottom: 15px; font-weight: 800; text-transform: uppercase;">LV.1 평범한 돌멩이</div>
+        
+        <div class="main-stage">
+            <div id="dolmang" onclick="clickDolmang()">🪨</div>
+        </div>
+        
+        <div class="bar-container">
+            <div class="label"><span>EXP (성장도)</span><span id="exp-text">0 / 100</span></div>
+            <div class="bar-bg"><div id="exp-bar" class="bar-fill"></div></div>
+        </div>
+        <div class="bar-container">
+            <div class="label"><span>HUNGER (포만감)</span><span id="hunger-text">100%</span></div>
+            <div class="bar-bg"><div id="hunger-bar" class="bar-fill" style="background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink);"></div></div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 20px;">
+            <button onclick="saveGame()" style="flex:1; background:#222; color:#fff; font-size: 11px;">💾 데이터 저장</button>
+            <button onclick="resetGame()" style="flex:1; background:#311; color:#fff; font-size: 11px;">🧹 초기화</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="tab-menu">
+            <button class="tab-btn active" id="tab-btn-shop" onclick="showTab('shop')">상점 & 업적</button>
+            <button class="tab-btn" id="tab-btn-skins" onclick="showTab('skins')">스킨 (100개)</button>
+        </div>
+
+        <div id="tab-shop" class="scroll-list">
+            <h3>🛒 자동 채굴기</h3>
+            <div id="shop-items"></div>
+            <h3 style="margin-top:25px;">🏅 명예의 전당</h3>
+            <div id="achievements"></div>
+        </div>
+
+        <div id="tab-skins" class="scroll-list" style="display:none;">
+            <h3>🎭 스타일 갤러리</h3>
+            <div id="skin-grid"></div>
+        </div>
+    </div>
+</div>
+
+<div id="msg"></div>
+
+<script>
+    // 진화 단계 (5레벨마다 변함)
+    const evoIcons = ["🪨","🗿","🧱","💎","🌋","🏔️","🏰","🪐","🛰️","🛸","🌠","☄️","🌀","🧬","⚛️","🔮","☀️","🌌","👾","👑","👽"];
+    const evoNames = ["돌멩이","고대 석상","단단한 벽돌","영롱한 보석","마그마석","설산의 바위","공중 정원","작은 행성","인공 위성","미확인 비행체","유성우","빛나는 혜성","블랙홀","생명의 원천","양자 입자","마법의 구체","태양의 핵","은하수","에일리언","돌의 황제","우주의 신"];
+
+    const achievementData = [
+        { id: 'c100', cat: 'CLICK', name: '노가다 입문', desc: '누적 클릭 100회 돌파', goal: 100, reward: 2000 },
+        { id: 'c1000', cat: 'CLICK', name: '클릭의 신', desc: '누적 클릭 1,000회 돌파', goal: 1000, reward: 20000 },
+        { id: 'm10k', cat: 'MONEY', name: '동네 부자', desc: '누적 수익 10,000원 달성', goal: 10000, reward: 5000 },
+        { id: 'm1m', cat: 'MONEY', name: '재벌 돌멩이', desc: '누적 수익 1,000,000원 달성', goal: 1000000, reward: 150000 },
+        { id: 'lv50', cat: 'LV', name: '진화의 고수', desc: '레벨 50 도달', goal: 50, reward: 50000 },
+        { id: 'lv100', cat: 'LV', name: '우주의 지배자', desc: '최종 레벨 100 달성', goal: 100, reward: 1000000 },
+        { id: 's50', cat: 'SKIN', name: '컬렉터', desc: '스킨 50개 보유', goal: 50, reward: 70000 }
+    ];
+
+    let state = {
+        coins: parseInt(localStorage.getItem('dt_coins')) || 0,
+        totalEarned: parseInt(localStorage.getItem('dt_total_earned')) || 0,
+        totalClicks: parseInt(localStorage.getItem('dt_total_clicks')) || 0,
+        exp: parseFloat(localStorage.getItem('dt_exp')) || 0, 
+        level: parseInt(localStorage.getItem('dt_lv')) || 1,
+        hunger: 100, 
+        cps: parseInt(localStorage.getItem('dt_cps')) || 0,
+        ownedSkins: JSON.parse(localStorage.getItem('dt_skins')) || [0],
+        currentSkin: parseInt(localStorage.getItem('dt_cur_skin')) || 0,
+        achievements: JSON.parse(localStorage.getItem('dt_achieve')) || []
+    };
+
+    // 100개 유니크 스킨 절차적 생성
+    const skins = Array.from({length: 100}, (_, i) => {
+        let hue = i * 137.5; // 황금각 분산
+        let sat = 60 + (i % 40);
+        let bright = 0.8 + (i % 8) * 0.1;
+        return {
+            id: i,
+            name: `프리즘 스킨 #${i + 1}`,
+            price: (i + 1) * 300,
+            reqLv: i,
+            filter: `hue-rotate(${hue}deg) saturate(${sat}%) brightness(${bright})`
+        };
+    });
+
+    function init() {
+        renderShop();
+        renderSkins();
+        renderAchievements();
+        updateUI();
+        setInterval(gameLoop, 1000);
+    }
+
+    function gameLoop() {
+        if(state.hunger > 0) {
+            let income = state.cps;
+            state.coins += income;
+            state.totalEarned += income;
+            state.exp += (income * 0.08); // 자동 수익 경험치 밸런스
+            state.hunger -= 0.35;
+        }
+        checkLevelUp();
+        checkAchievements();
+        updateUI();
+    }
+
+    function clickDolmang() {
+        if(state.hunger <= 0) return showMsg("돌망이가 굶주려서 움직이지 못합니다!");
+        
+        // 햅틱 진동 (지원 브라우저만)
+        if ('vibrate' in navigator) navigator.vibrate(15);
+
+        let power = (1 + Math.floor(state.level/2));
+        state.coins += power;
+        state.totalEarned += power;
+        state.totalClicks++;
+        state.exp += 12;
+        state.hunger -= 0.12;
+        updateUI();
+    }
+
+    function checkAchievements() {
+        achievementData.forEach(ach => {
+            if (state.achievements.includes(ach.id)) return;
+
+            let reached = false;
+            if (ach.cat === 'CLICK' && state.totalClicks >= ach.goal) reached = true;
+            if (ach.cat === 'MONEY' && state.totalEarned >= ach.goal) reached = true;
+            if (ach.cat === 'LV' && state.level >= ach.goal) reached = true;
+            if (ach.cat === 'SKIN' && state.ownedSkins.length >= ach.goal) reached = true;
+
+            if (reached) {
+                state.achievements.push(ach.id);
+                state.coins += ach.reward;
+                
+                // 업적 달성 진동
+                if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
+
+                showMsg(`🏆 업적 달성! [${ach.name}] <br> +${ach.reward.toLocaleString()}원 획득!`);
+                renderAchievements();
+            }
+        });
+    }
+
+    function renderAchievements() {
+        const container = document.getElementById('achievements');
+        container.innerHTML = achievementData.map(ach => {
+            const isDone = state.achievements.includes(ach.id);
+            return `
+                <div class="list-item ${isDone ? 'achieved' : ''}">
+                    <div style="text-align:left;">
+                        <div style="font-weight:bold; color:${isDone ? 'var(--neon-blue)' : '#fff'}; font-size:13px;">${ach.name}</div>
+                        <div style="font-size:10px; color:#777;">${ach.desc}</div>
+                    </div>
+                    <div style="font-size:11px; font-weight:800; color:var(--gold)">
+                        ${isDone ? 'COMPLETE' : ach.reward.toLocaleString() + '원'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderSkins() {
+        const grid = document.getElementById('skin-grid');
+        grid.innerHTML = skins.map(s => {
+            const isOwned = state.ownedSkins.includes(s.id);
+            const canBuy = state.coins >= s.price && state.level >= s.reqLv;
+            return `
+                <div class="list-item ${isOwned ? 'owned' : ''}">
+                    <span style="filter: ${s.filter}; font-size:26px;">${evoIcons[Math.min(Math.floor(state.level/5), 20)]}</span>
+                    <div style="flex:1; margin-left:15px; text-align:left;">
+                        <div style="font-weight:bold; font-size:12px;">${s.name}</div>
+                        <div style="font-size:10px; color:#555;">LV.${s.reqLv} 해금 / ${s.price}원</div>
+                    </div>
+                    <button onclick="handleSkin(${s.id}, ${s.price}, ${s.reqLv})" 
+                        ${!isOwned && !canBuy ? 'disabled' : ''}>
+                        ${isOwned ? (state.currentSkin === s.id ? '장착중' : '장착') : '구매'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function handleSkin(id, price, req) {
+        if(state.ownedSkins.includes(id)) {
+            state.currentSkin = id;
+        } else {
+            if(state.level < req) return showMsg(`레벨 ${req} 도달 시 구매 가능!`);
+            if(state.coins < price) return showMsg("코인이 부족합니다!");
+            state.coins -= price;
+            state.ownedSkins.push(id);
+            state.currentSkin = id;
+        }
+        updateUI();
+        renderSkins();
+    }
+
+    function renderShop() {
+        const items = [
+            { id: 'ant', name: '마이크로 일꾼 개미', price: 150, cps: 3 },
+            { id: 'pick', name: '초전도체 곡괭이', price: 1200, cps: 25 },
+            { id: 'drill', name: '다이아몬드 차원 드릴', price: 15000, cps: 400 }
+        ];
+        document.getElementById('shop-items').innerHTML = items.map(it => `
+            <div class="list-item">
+                <div style="text-align:left;">
+                    <div style="font-weight:bold;">${it.name}</div>
+                    <div style="font-size:10px; color:#888;">초당 수익 +${it.cps}원</div>
+                </div>
+                <button onclick="buyCps(${it.price}, ${it.cps})">${it.price.toLocaleString()}원</button>
+            </div>
+        `).join('') + `
+            <div class="list-item" style="border: 1px dashed var(--neon-pink); background: #251515;">
+                <div style="font-weight:bold; font-size: 13px;">🍱 고농축 마력 비료</div>
+                <button onclick="buyFood(60)">60원</button>
+            </div>
+        `;
+    }
+
+    function buyCps(p, c) {
+        if(state.coins < p) return showMsg("자금이 부족합니다!");
+        state.coins -= p;
+        state.cps += c;
+        updateUI();
+    }
+
+    function buyFood(p) {
+        if(state.coins < p) return showMsg("자금이 부족합니다!");
+        state.coins -= p;
+        state.hunger = Math.min(100, state.hunger + 60);
+        updateUI();
+    }
+
+    function checkLevelUp() {
+        let maxExp = state.level * 100;
+        if(state.exp >= maxExp) {
+            state.exp = 0;
+            state.level++;
+            showMsg(`✨ LEVEL UP! [${state.level}] 단계로 진화! ✨`);
+            if(state.level % 5 === 0) renderSkins(); 
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('coins').innerText = Math.floor(state.coins).toLocaleString();
+        document.getElementById('exp-bar').style.width = (state.exp / (state.level * 100) * 100) + '%';
+        document.getElementById('hunger-bar').style.width = state.hunger + '%';
+        
+        let evoIdx = Math.min(Math.floor(state.level / 5), evoIcons.length - 1);
+        const d = document.getElementById('dolmang');
+        d.innerText = evoIcons[evoIdx];
+        d.style.filter = skins[state.currentSkin].filter;
+        
+        document.getElementById('level-info').innerText = `LV.${state.level} ${evoNames[evoIdx]}`;
+        document.getElementById('exp-text').innerText = `${Math.floor(state.exp)} / ${state.level * 100}`;
+    }
+
+    function showTab(t) {
+        document.getElementById('tab-shop').style.display = t === 'shop' ? 'block' : 'none';
+        document.getElementById('tab-skins').style.display = t === 'skins' ? 'block' : 'none';
+        document.getElementById('tab-btn-shop').classList.toggle('active', t === 'shop');
+        document.getElementById('tab-btn-skins').classList.toggle('active', t === 'skins');
+    }
+
+    function showMsg(m) {
+        const msgBox = document.getElementById('msg');
+        msgBox.innerHTML = m;
+        msgBox.style.opacity = 1;
+        setTimeout(() => msgBox.style.opacity = 0, 2500);
+    }
+
+    function saveGame() {
+        localStorage.setItem('dt_coins', state.coins);
+        localStorage.setItem('dt_total_earned', state.totalEarned);
+        localStorage.setItem('dt_total_clicks', state.totalClicks);
+        localStorage.setItem('dt_lv', state.level);
+        localStorage.setItem('dt_exp', state.exp);
+        localStorage.setItem('dt_cps', state.cps);
+        localStorage.setItem('dt_skins', JSON.stringify(state.ownedSkins));
+        localStorage.setItem('dt_cur_skin', state.currentSkin);
+        localStorage.setItem('dt_achieve', JSON.stringify(state.achievements));
+        showMsg("데이터가 브라우저에 안전하게 저장되었습니다.");
+    }
+
+    function resetGame() { if(confirm("모든 데이터를 초기화하시겠습니까? 돌망이가 처음으로 돌아갑니다.")) { localStorage.clear(); location.reload(); } }
+
+    init();
+</script>
+
+</body>
+</html>
