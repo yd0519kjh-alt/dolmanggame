@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://yd0519kjh-alt.github.io/dolmanggame/sitemap.xml
