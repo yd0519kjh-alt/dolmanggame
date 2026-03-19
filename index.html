@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>돌망이 타이쿤: 인피니티 - 100LV 마스터</title>
+    <title>돌망이 타이쿤: 인피니티 - 최후의 수호자</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00f3ff">
@@ -10,73 +10,116 @@
         :root { --neon-blue: #00f3ff; --neon-pink: #ff00ff; --gold: #ffd700; --bg: #0a0a0c; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
+        
+        /* 메인 레이아웃 */
         .game-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; width: 100%; max-width: 900px; transition: opacity 0.5s; }
         .card { background: #151518; padding: 25px; border-radius: 25px; border: 1px solid #222; box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative; display: flex; flex-direction: column; }
         h3 { margin-top: 0; color: var(--neon-blue); font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 12px; }
+        
+        /* 돌망이 스테이지 */
         .main-stage { text-align: center; padding: 40px 0; background: radial-gradient(circle, #1a1a2e 0%, #0a0a0c 70%); border-radius: 20px; margin-bottom: 20px; }
-        #dolmang { font-size: 110px; cursor: pointer; transition: 0.1s; user-select: none; display: inline-block; filter: drop-shadow(0 0 10px rgba(0,243,255,0.3)); }
+        #dolmang { font-size: 110px; cursor: pointer; transition: 0.1s; user-select: none; display: inline-block; filter: drop-shadow(0 0 15px rgba(0,243,255,0.4)); }
         #dolmang:active { transform: scale(0.85); }
+
+        /* 게이지 바 */
         .bar-bg { background: #222; height: 8px; border-radius: 4px; overflow: hidden; margin: 5px 0 12px 0; }
         .bar-fill { height: 100%; width: 0%; transition: width 0.2s; background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
+
+        /* 리스트 및 버튼 */
         .scroll-list { height: 420px; overflow-y: auto; padding-right: 8px; }
         .scroll-list::-webkit-scrollbar { width: 4px; }
         .scroll-list::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
         .list-item { background: #1e1e22; padding: 14px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; }
         .list-item.ready { border: 1px solid var(--neon-pink); background: #251a25; }
-        button { background: var(--neon-blue); color: black; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        
+        button { background: var(--neon-blue); color: black; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
         button:disabled { background: #333; color: #666; cursor: not-allowed; }
+
         .tab-menu { display: flex; gap: 8px; margin-bottom: 15px; }
         .tab-btn { background: #222; color: #666; flex: 1; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .tab-btn.active { background: var(--neon-blue); color: black; }
+
+        /* 메시지 알림 */
         #msg { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); color: var(--neon-pink); font-size: 13px; font-weight: bold; background: rgba(10,10,12,0.9); padding: 12px 25px; border-radius: 30px; opacity: 0; transition: 0.3s; z-index: 1000; border: 1px solid var(--neon-pink); text-align: center; }
+
+        /* ☄️ 엔딩 오버레이 스타일 */
         #ending-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
-        #meteor { font-size: 150px; position: absolute; top: -200px; right: -200px; transition: transform 2s ease-in; }
+        #meteor { font-size: 150px; position: absolute; top: -250px; right: -250px; display: none; transition: transform 2s ease-in; }
+        #final-dolmang { font-size: 120px; z-index: 10001; }
+        
+        .shake { animation: shake-screen 0.1s infinite; }
+        @keyframes shake-screen { 0% { transform: translate(3px, 3px); } 50% { transform: translate(-3px, -3px); } 100% { transform: translate(3px, -3px); } }
+        
         .shatter { animation: shatter-anim 1.5s forwards; }
-        @keyframes shatter-anim { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(5); opacity: 0; filter: blur(20px); } }
-        .shake { animation: shake-anim 0.1s infinite; }
-        @keyframes shake-anim { 0% { transform: translate(2px, 2px); } 100% { transform: translate(-2px, -2px); } }
+        @keyframes shatter-anim { 0% { transform: scale(1); opacity: 1; filter: brightness(10); } 100% { transform: scale(6); opacity: 0; filter: blur(30px); } }
     </style>
 </head>
 <body>
 
 <div id="ending-overlay">
     <div id="meteor">☄️</div>
-    <div id="final-dolmang" style="font-size: 120px;">👽</div>
+    <div id="final-dolmang">👽</div>
     <div id="ending-text" style="opacity: 0; transition: 2s; text-align: center; padding: 20px;">
-        <h1 style="color: var(--gold);">지구를 구한 영웅</h1>
-        <p>지구에 거대한 운석이 떨어집니다.<br>돌망이는 운석과 충돌하여 부셔졌지만<br>우리의 지구를 지켰습니다.<br><br>우리는 돌망이를 영원히 잊지 않을 것입니다.</p>
-        <button onclick="location.reload()" style="background: var(--neon-pink); color: white; padding: 15px 30px; border-radius: 50px;">다시 시작하기</button>
+        <h1 style="color: var(--gold); text-shadow: 0 0 20px var(--gold);">지구를 구한 영웅</h1>
+        <p style="font-size: 18px; line-height: 1.8;">
+            지구에 거대한 운석이 떨어집니다.<br>
+            돌망이는 운석과 충돌하여 부셔졌지만<br>
+            우리의 지구를 지켰습니다.<br><br>
+            <strong>우리는 돌망이를 영원히 잊지 않을 것입니다.</strong>
+        </p>
+        <button onclick="location.reload()" style="background: var(--neon-pink); color: white; padding: 15px 40px; border-radius: 50px; font-size: 18px; margin-top: 20px;">돌망이 다시 만나기</button>
     </div>
 </div>
 
 <div class="game-layout" id="game-ui">
     <div class="card">
-        <div style="font-size: 28px; color: var(--gold); font-weight: 900;">💰 <span id="coins">0</span></div>
-        <div id="level-info" style="color: var(--neon-blue); font-size: 15px; font-weight: 800; margin-bottom: 5px;">LV.1 시작</div>
+        <div style="font-size: 28px; color: var(--gold); font-weight: 900; margin-bottom: 5px;">💰 <span id="coins">0</span></div>
+        <div id="level-info" style="color: var(--neon-blue); font-size: 15px; font-weight: 800; margin-bottom: 10px;">LV.1 시작</div>
         <div class="main-stage"><div id="dolmang" onclick="clickDolmang()">🪨</div></div>
-        <div style="font-size: 11px; color:#888;">EXP: <span id="exp-text">0 / 100</span></div>
+        
+        <div style="font-size: 11px; color:#888;">EXP (성장도): <span id="exp-text">0 / 100</span></div>
         <div class="bar-bg"><div id="exp-bar" class="bar-fill"></div></div>
-        <div style="font-size: 11px; color:#888;">HUNGER: <span id="hunger-text">100%</span></div>
+        
+        <div style="font-size: 11px; color:#888;">HUNGER (포만감): <span id="hunger-text">100%</span></div>
         <div class="bar-bg"><div id="hunger-bar" class="bar-fill" style="background: var(--neon-pink);"></div></div>
-        <div style="display: flex; gap: 10px; margin-top: auto;"><button onclick="saveGame()" style="flex:1; background:#222; color:#fff;">💾 저장</button><button onclick="resetGame()" style="flex:1; background:#311; color:#fff;">🧹 초기화</button></div>
+        
+        <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 10px;">
+            <button onclick="saveGame()" style="flex:1; background:#222; color:#fff;">💾 저장</button>
+            <button onclick="resetGame()" style="flex:1; background:#311; color:#fff;">🧹 초기화</button>
+        </div>
     </div>
 
     <div class="card">
-        <div class="tab-menu"><button class="tab-btn active" onclick="showTab('shop')">상점</button><button class="tab-btn" onclick="showTab('missions')">미션</button><button class="tab-btn" onclick="showTab('skins')">스킨</button></div>
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="showTab('shop')">상점</button>
+            <button class="tab-btn" onclick="showTab('missions')">미션</button>
+            <button class="tab-btn" onclick="showTab('skins')">도감</button>
+        </div>
+        
         <div id="tab-shop" class="scroll-list">
-            <h3 style="color:var(--gold);">🎰 가챠 <button onclick="drawGacha()" style="background:var(--gold); margin-left:10px;">5,000원</button></h3>
-            <h3>🪨 석재 시장 (LV.100 정점)</h3>
+            <h3 style="color:var(--gold);">🎰 럭키 가챠 <button onclick="drawGacha()" style="background:var(--gold); margin-left:10px;">5,000원</button></h3>
+            <h3>🪨 석재 시장 (LV.100 목표)</h3>
             <div id="stone-shop"></div>
-            <h3>🤖 자동화</h3>
+            <h3 style="margin-top:20px;">🤖 자동화 시설</h3>
             <div id="item-shop"></div>
         </div>
-        <div id="tab-missions" class="scroll-list" style="display:none;"><h3>🎯 미션 리스트</h3><div id="mission-list"></div></div>
-        <div id="tab-skins" class="scroll-list" style="display:none;"><h3>🎭 보유 스킨</h3><div id="skin-grid"></div></div>
+
+        <div id="tab-missions" class="scroll-list" style="display:none;">
+            <h3>🎯 영웅의 업적 (보상 클릭!)</h3>
+            <div id="mission-list"></div>
+        </div>
+
+        <div id="tab-skins" class="scroll-list" style="display:none;">
+            <h3>🎭 획득한 스킨</h3>
+            <div id="skin-grid"></div>
+        </div>
     </div>
 </div>
+
 <div id="msg"></div>
 
 <script>
+    // 100레벨을 위한 방대한 데이터
     const stoneData = [
         { name: "평범한 돌", icon: "🪨", price: 0, lv: 1 },
         { name: "고대 석상", icon: "🗿", price: 2000, lv: 5 },
@@ -85,24 +128,17 @@
         { name: "설산의 바위", icon: "🏔️", price: 150000, lv: 30 },
         { name: "인공 위성", icon: "🛰️", price: 500000, lv: 40 },
         { name: "UFO", icon: "🛸", price: 1200000, lv: 50 },
-        { name: "블랙홀", icon: "🌀", price: 4000000, lv: 60 },
-        { name: "양자 핵", icon: "⚛️", price: 10000000, lv: 70 },
-        { name: "은하수", icon: "🌌", price: 30000000, lv: 80 },
-        { name: "성좌의 형상", icon: "✨", price: 100000000, lv: 90 },
-        { name: "최후의 구원자", icon: "👽", price: 500000000, lv: 95 }
+        { name: "블랙홀", icon: "🌀", price: 5000000, lv: 65 },
+        { name: "양자 핵", icon: "⚛️", price: 20000000, lv: 80 },
+        { name: "최후의 성좌", icon: "✨", price: 100000000, lv: 95 }
     ];
 
     const missionData = [
-        { id: 'm1', name: '노가다꾼', goal: 100, type: 'click', reward: 3000 },
-        { id: 'm2', name: '레벨 10 달성', goal: 10, type: 'lv', reward: 10000 },
-        { id: 'm3', name: '백만장자', goal: 1000000, type: 'money', reward: 150000 },
-        { id: 'm4', name: '클릭 머신', goal: 2000, type: 'click', reward: 100000 },
-        { id: 'm5', name: '중간 점검(50LV)', goal: 50, type: 'lv', reward: 500000 },
-        { id: 'm6', name: '자산가', goal: 50000000, type: 'money', reward: 5000000 },
-        { id: 'm7', name: '고인물(80LV)', goal: 80, type: 'lv', reward: 10000000 },
-        { id: 'm8', name: '광클의 신', goal: 10000, type: 'click', reward: 50000000 },
-        { id: 'm9', name: '우주의 지배자', goal: 500000000, type: 'money', reward: 100000000 },
-        { id: 'm10', name: '지구의 구원자', goal: 100, type: 'lv', reward: 2000000000 }
+        { id: 'm1', name: '첫 클릭', goal: 100, type: 'click', reward: 3000 },
+        { id: 'm2', name: '진화의 시작', goal: 10, type: 'lv', reward: 10000 },
+        { id: 'm3', name: '자본가', goal: 1000000, type: 'money', reward: 150000 },
+        { id: 'm4', name: '중간 관리자', goal: 50, type: 'lv', reward: 1000000 },
+        { id: 'm5', name: '지구의 희망', goal: 100, type: 'lv', reward: 50000000 }
     ];
 
     let state = {
@@ -120,45 +156,59 @@
         isEnding: false
     };
 
-    const skins = Array.from({length: 110}, (_, i) => ({ id: i, name: i >= 100 ? `전설 #${i-99}` : `스킨 #${i + 1}`, price: (i + 1) * 500, reqLv: i >= 100 ? 0 : i, filter: `hue-rotate(${i*137}deg)`, isGacha: i>=100 }));
+    const skins = Array.from({length: 110}, (_, i) => ({
+        id: i, name: i >= 100 ? `전설 #${i-99}` : `스킨 #${i+1}`,
+        price: (i+1)*500, reqLv: i >= 100 ? 0 : i,
+        filter: `hue-rotate(${i*137}deg)`, isGacha: i >= 100
+    }));
 
-    function init() { renderStoneShop(); renderItemShop(); renderMissions(); renderSkins(); updateUI(); setInterval(gameLoop, 1000); }
+    function init() {
+        renderStoneShop(); renderItemShop(); renderMissions(); renderSkins(); updateUI();
+        setInterval(gameLoop, 1000);
+    }
 
     function gameLoop() {
         if(state.isEnding) return;
-        if(state.hunger > 0) { state.coins += state.cps; state.totalEarned += state.cps; state.exp += (state.cps * 0.15); state.hunger -= 0.35; }
+        if(state.hunger > 0) {
+            state.coins += state.cps; state.totalEarned += state.cps;
+            state.exp += (state.cps * 0.15); state.hunger -= 0.35;
+        }
         checkLevelUp(); updateUI();
     }
 
     function clickDolmang() {
         if(state.isEnding || state.hunger <= 0) return;
         if ('vibrate' in navigator) navigator.vibrate(10);
-        let pwr = 1 + Math.floor(state.level * 1.5);
-        state.coins += pwr; state.totalEarned += pwr; state.totalClicks++; state.exp += 20; state.hunger -= 0.12;
+        let power = 1 + Math.floor(state.level * 1.2);
+        state.coins += power; state.totalEarned += power;
+        state.totalClicks++; state.exp += 20; state.hunger -= 0.12;
         updateUI(); renderMissions();
     }
 
     function checkLevelUp() {
         if(state.exp >= state.level * 100) {
             state.exp = 0; state.level++;
-            if (state.level >= 100) triggerEnding();
-            else { showMsg(`⭐ LV.${state.level} 달성! ⭐`); renderStoneShop(); renderMissions(); }
+            if (state.level >= 100) triggerEnding(); // 🚀 레벨 100 엔딩 발동
+            else { showMsg(`⭐ LEVEL UP! [${state.level}] ⭐`); renderStoneShop(); renderMissions(); }
         }
     }
 
+    // --- 상점 & 미션 렌더링 ---
     function renderStoneShop() {
         const shop = document.getElementById('stone-shop');
         shop.innerHTML = stoneData.map(s => {
             const isOwned = state.ownedStones.includes(s.icon);
             const canUnlock = state.level >= s.lv;
             return `<div class="list-item"><span style="font-size:24px;">${s.icon}</span><div style="flex:1; margin-left:12px; text-align:left;"><div style="font-weight:bold;">${s.name}</div><div style="font-size:10px; color:#666;">LV.${s.lv} 해금</div></div>
-                <button onclick="buyStone('${s.icon}', ${s.price})" ${!isOwned && (!canUnlock || state.coins < s.price) ? 'disabled' : ''}>${isOwned ? (state.currentStone === s.icon ? '장착중' : '장착') : (canUnlock ? s.price.toLocaleString()+'원' : '잠김')}</button></div>`;
+                <button onclick="buyStone('${s.icon}', ${s.price})" ${!isOwned && (!canUnlock || state.coins < s.price) ? 'disabled' : ''}>
+                    ${isOwned ? (state.currentStone === s.icon ? '장착중' : '장착') : (canUnlock ? s.price.toLocaleString()+'원' : '잠김')}
+                </button></div>`;
         }).join('');
     }
 
     function buyStone(icon, price) {
         if(!state.ownedStones.includes(icon)) { state.coins -= price; state.ownedStones.push(icon); }
-        state.currentStone = icon; showMsg(`${icon} 장착!`); updateUI(); renderStoneShop(); renderSkins();
+        state.currentStone = icon; showMsg(`${icon} 장착 완료!`); updateUI(); renderStoneShop(); renderSkins();
     }
 
     function renderMissions() {
@@ -167,26 +217,29 @@
             const isDone = state.completedMissions.includes(m.id);
             let cur = m.type === 'click' ? state.totalClicks : (m.type === 'money' ? state.totalEarned : state.level);
             const isReady = !isDone && cur >= m.goal;
-            return `<div class="list-item ${isReady ? 'ready' : ''}"><div style="text-align:left;"><div style="font-weight:bold;">${m.name}</div><div style="font-size:10px; color:#888;">${m.goal.toLocaleString()} 달성 (${Math.min(cur, m.goal).toLocaleString()}/${m.goal.toLocaleString()})</div></div>
+            return `<div class="list-item ${isReady ? 'ready' : ''}"><div style="text-align:left;"><div style="font-weight:bold; color:${isDone?'#555':'var(--neon-blue)'}">${m.name}</div><div style="font-size:10px; color:#888;">${m.desc} (${Math.min(cur, m.goal).toLocaleString()}/${m.goal.toLocaleString()})</div></div>
                 <button onclick="claimMission('${m.id}', ${m.reward})" ${!isReady ? 'disabled' : ''}>${isDone ? '완료' : (isReady ? '보상받기' : m.reward.toLocaleString()+'원')}</button></div>`;
         }).join('');
     }
 
-    function claimMission(id, reward) { state.completedMissions.push(id); state.coins += reward; showMsg(`🎁 보상 ${reward.toLocaleString()}원!`); renderMissions(); updateUI(); }
+    function claimMission(id, reward) {
+        state.completedMissions.push(id); state.coins += reward;
+        showMsg(`🎁 보상 ${reward.toLocaleString()}원 획득!`); renderMissions(); updateUI();
+    }
 
     function renderItemShop() {
-        const items = [{ id: 'ant', name: '일꾼 개미', price: 200, cps: 5 }, { id: 'drill', name: '차원 드릴', price: 25000, cps: 800 }, { id: 'star', name: '중성자 별 추출기', price: 1000000, cps: 15000 }];
-        document.getElementById('item-shop').innerHTML = items.map(it => `<div class="list-item"><span>${it.name} (+${it.cps}/s)</span><button onclick="buyCps(${it.price}, ${it.cps})">${it.price.toLocaleString()}원</button></div>`).join('') + `<div class="list-item"><span>🍱 우주 도시락</span><button onclick="buyFood(150)">150원</button></div>`;
+        const items = [{ id: 'ant', name: '일꾼 개미', price: 200, cps: 5 }, { id: 'drill', name: '차원 드릴', price: 25000, cps: 800 }, { id: 'star', name: '중성자 별', price: 1000000, cps: 20000 }];
+        document.getElementById('item-shop').innerHTML = items.map(it => `<div class="list-item"><span>${it.name} (+${it.cps}/s)</span><button onclick="buyCps(${it.price}, ${it.cps})">${it.price.toLocaleString()}원</button></div>`).join('') + `<div class="list-item"><span>🍱 우주 도시락</span><button onclick="buyFood(100)">100원</button></div>`;
     }
 
     function buyCps(p, c) { if(state.coins >= p) { state.coins -= p; state.cps += c; updateUI(); } }
     function buyFood(p) { if(state.coins >= p) { state.coins -= p; state.hunger = 100; updateUI(); } }
 
     function drawGacha() {
-        if (state.coins < 5000) return showMsg("돈 부족!");
+        if (state.coins < 5000) return showMsg("5,000원이 필요합니다!");
         state.coins -= 5000; const won = skins[100 + Math.floor(Math.random()*10)];
         if (!state.ownedSkins.includes(won.id)) state.ownedSkins.push(won.id);
-        showMsg(`🎰 가챠! [${won.name}]`); renderSkins(); updateUI();
+        showMsg(`🎰 가챠 성공! [${won.name}]`); renderSkins(); updateUI();
     }
 
     function renderSkins() {
@@ -201,7 +254,11 @@
         }).join('');
     }
 
-    function handleSkin(id, p, r) { if(state.ownedSkins.includes(id)) state.currentSkin = id; else if(state.coins >= p && state.level >= r) { state.coins -= p; state.ownedSkins.push(id); state.currentSkin = id; } updateUI(); renderSkins(); }
+    function handleSkin(id, p, r) {
+        if(state.ownedSkins.includes(id)) state.currentSkin = id;
+        else if(state.coins >= p && state.level >= r) { state.coins -= p; state.ownedSkins.push(id); state.currentSkin = id; }
+        updateUI(); renderSkins();
+    }
 
     function updateUI() {
         document.getElementById('coins').innerText = Math.floor(state.coins).toLocaleString();
@@ -215,26 +272,53 @@
     }
 
     function showTab(t) { ['shop', 'missions', 'skins'].forEach(tab => { document.getElementById(`tab-${tab}`).style.display = (tab === t) ? 'block' : 'none'; }); }
-    function showMsg(m) { const b = document.getElementById('msg'); b.innerHTML = m; b.style.opacity = 1; setTimeout(() => b.style.opacity = 0, 2000); }
+    function showMsg(m) { const b = document.getElementById('msg'); b.innerHTML = m; b.style.opacity = 1; setTimeout(() => b.style.opacity = 0, 2500); }
+    
     function saveGame() {
         localStorage.setItem('dt_coins', state.coins); localStorage.setItem('dt_total_earned', state.totalEarned); localStorage.setItem('dt_total_clicks', state.totalClicks); localStorage.setItem('dt_lv', state.level); localStorage.setItem('dt_exp', state.exp); localStorage.setItem('dt_cps', state.cps); localStorage.setItem('dt_stones', JSON.stringify(state.ownedStones)); localStorage.setItem('dt_cur_stone', state.currentStone); localStorage.setItem('dt_skins', JSON.stringify(state.ownedSkins)); localStorage.setItem('dt_cur_skin', state.currentSkin); localStorage.setItem('dt_mission_done', JSON.stringify(state.completedMissions));
-        showMsg("우주 저장 완료!");
+        showMsg("우주 서버에 데이터 저장!");
     }
-    function resetGame() { if(confirm("초기화?")) { localStorage.clear(); location.reload(); } }
 
+    function resetGame() { if(confirm("초기화하시겠습니까? 지구가 태초의 상태로 돌아갑니다.")) { localStorage.clear(); location.reload(); } }
+
+    // 🌌 엔딩 연출 로직 (주인님 시나리오 적용)
     function triggerEnding() {
-        state.isEnding = true; document.getElementById('game-ui').style.opacity = '0';
+        state.isEnding = true;
+        document.getElementById('game-ui').style.opacity = '0';
         const overlay = document.getElementById('ending-overlay');
         const meteor = document.getElementById('meteor');
         const finalStone = document.getElementById('final-dolmang');
+        
         overlay.style.display = 'flex';
-        setTimeout(() => { meteor.style.display = 'block'; if ('vibrate' in navigator) navigator.vibrate([100, 100, 500]); setTimeout(() => { meteor.style.transform = 'translate(-800px, 800px)'; }, 100); }, 1000);
+        
+        // 1. 운석 낙하
+        setTimeout(() => {
+            meteor.style.display = 'block';
+            if ('vibrate' in navigator) navigator.vibrate([100, 100, 500]);
+            setTimeout(() => { meteor.style.transform = 'translate(-800px, 800px)'; }, 100);
+        }, 1000);
+
+        // 2. 충돌 전 떨림
         setTimeout(() => { document.body.classList.add('shake'); }, 2800);
-        setTimeout(() => { meteor.style.display = 'none'; finalStone.classList.add('shatter'); document.body.style.background = "white"; setTimeout(() => { document.body.style.background = "black"; }, 100); }, 3000);
-        setTimeout(() => { document.body.classList.remove('shake'); document.getElementById('ending-text').style.opacity = '1'; }, 4500);
+
+        // 3. 충돌 및 산산조각
+        setTimeout(() => {
+            meteor.style.display = 'none';
+            finalStone.classList.add('shatter');
+            document.body.style.background = "white"; // 섬광
+            setTimeout(() => { document.body.style.background = "black"; }, 100);
+        }, 3000);
+
+        // 4. 감동의 텍스트 등장
+        setTimeout(() => {
+            document.body.classList.remove('shake');
+            document.getElementById('ending-text').style.opacity = '1';
+            if ('vibrate' in navigator) navigator.vibrate([500, 200, 500]);
+        }, 4500);
     }
 
     init();
 </script>
+
 </body>
 </html>
